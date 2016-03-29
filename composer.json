@@ -1,23 +1,25 @@
 {
-    "name": "rossriley/phpscalars",
+    "name": "redcrystal/scalar-objects",
     "type": "library",
-    "description": "PHP Handlers for experimental Scalar Object Handlers",
+    "description": "PHP Handlers for External Scalar Object Handlers",
     "license": "MIT",
     "authors": [
-        {"name": "Ross Riley","email": "riley.ross@gmail.com"}
+        {
+            "name": "Zain Mehdi",
+            "email": "szainmehdi@gmail.com"
+        },
+        {
+            "name": "Ross Riley",
+            "email": "riley.ross@gmail.com"
+        }
     ],
     "require": {
-      "php": ">=5.4.0"
+        "php": ">=7.0"
     },
-
     "autoload": {
-      "psr-4": {
-        "Spl\\Scalars\\": "src",
-        "Spl\\Scalars\\Tests\\": "tests"
-      }
+        "psr-4": {
+            "RedCrystal\\Scalars\\": "src",
+            "RedCrystal\\Scalars\\Tests\\": "tests"
+        }
     }
-
-
-
-
 }
