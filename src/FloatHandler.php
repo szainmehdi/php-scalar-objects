@@ -1,38 +1,32 @@
 <?php
-namespace Spl\Scalars;
+namespace RedCrystal\Scalars;
 
 class FloatHandler extends NumberHandler
 {
-
-    public function isFloat() {
+    public static function isFloat($self) : bool
+    {
         return true;
     }
 
-    public function toInt()
+    public static function round(float $self, $precision = 0, $mode = null) : float
     {
-        return intval($this);
+        return round($self, $precision, $mode);
     }
 
-    public function round($precision = 0, $mode = null)
+    //Stub - TODO?
+    public static function toPrecision(float $self, $int = null) : string
     {
-        return round($this, $precision, $mode);
-    }
-
-    //Stub
-    public function toPrecision ($int = null) {
         if (!$int === null) {
-            return $this->toString();
+            return $self->toString();
         }
-        return $this->toString();
+        return $self->toString();
     }
 
-    public function toFixed ($int = null) {
+    public static function toFixed(float $self, $int = null) : string
+    {
         if ($int === null) {
-            return $this->toString();
+            return $self->toString();
         }
-        return round($this, $int)->toString();
+        return round($self, $int)->toString();
     }
-
-
-
 }

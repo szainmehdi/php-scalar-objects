@@ -1,25 +1,25 @@
 <?php
-namespace Spl\Scalars;
+namespace RedCrystal\Scalars;
 
 class IntegerHandler extends NumberHandler
 {
-
-    public function isInt() {
+    public static function isInt($self) : bool
+    {
         return true;
     }
 
-    public function toInt()
+    public static function toInt($self) : int
     {
-        return $this;
+        return $self;
     }
 
-    public function even()
+    public static function even(int $self) : bool
     {
-        return $this % 2 === 0;
+        return $self % 2 === 0;
     }
 
-    public function odd()
+    public static function odd(int $self) : bool
     {
-        return $this % 2 === 1;
+        return $self % 2 === 1;
     }
 }

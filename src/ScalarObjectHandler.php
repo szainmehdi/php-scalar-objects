@@ -1,46 +1,47 @@
 <?php
-namespace Spl\Scalars;
+namespace RedCrystal\Scalars;
 
 class ScalarObjectHandler
 {
 
-    public function isArray()
+    public static function isArray($self) : bool
     {
         return false;
     }
 
-    public function isBool()
+    public static function isBool($self) : bool
     {
         return false;
     }
 
-    public function isFloat()
+    public static function isFloat($self) : bool
     {
         return false;
     }
 
-    public function isInt() {
-        return false;
-    }
-
-    public function isNull()
+    public static function isInt($self) : bool
     {
         return false;
     }
 
-    public function isResource()
+    public static function isNull($self) : bool
     {
         return false;
     }
 
-    public function isString()
+    public static function isResource($self) : bool
     {
         return false;
     }
 
-    public function toJSON()
+    public static function isString($self) : bool
     {
-        return json_encode($this);
+        return false;
+    }
+
+    public static function toJson($self) : string
+    {
+        return json_encode($self);
     }
 
 }

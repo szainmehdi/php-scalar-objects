@@ -1,120 +1,123 @@
 <?php
-namespace Spl\Scalars;
+namespace RedCrystal\Scalars;
+
+use InvalidArgumentException;
 
 class ArrayHandler extends ScalarObjectHandler
 {
-
-    public function isArray() {
+    public static function isArray($self) : bool
+    {
         return true;
     }
 
-    public function any()
+    // TODO - I don't like this.
+    public static function any(array $self) : bool
     {
-        $any = false;
-        foreach($this as $val) {
-            if($val) $any = true;
+        foreach ($self as $val) {
+            if ($val !== null) {
+                return true;
+            }
         }
-        return $any;
-
+        return false;
     }
 
-    public function all()
+    // TODO - I don't like this.
+    public static function all(array $self) : bool
     {
-        $all = true;
-        foreach($this as $val) {
-            if(!$val) $all = false;
+        foreach ($self as $val) {
+            if ($val === null) {
+                return false;
+            }
         }
-        return $all;
-
+        return true;
     }
 
-    public function compact()
+    public static function compact(array $self) : array
     {
-        $array = $this;
-        return array_filter($array);
+        return array_filter($self);
     }
 
-    public function chunk($size)
+    public static function chunk(array $self, int $size) : array
     {
-        $this->verifyInteger($size, "chunk");
-        return array_chunk($this, $size);
+        return array_chunk($self, $size);
     }
 
-    public function column($key)
+    public static function column(array $self, string $key) : array
     {
-        $this->verifyString($key, "column");
-        return array_column($this, $key);
+        return array_column($self, $key);
     }
 
-    public function combine($arrayVals)
+    public static function combine(array $self, array $values) : array
     {
-        $this->verifyArray($arrayVals, "combine");
-        return array_combine($this,$arrayVals);
+        return array_combine($self, $values);
     }
 
-    public function count() {
-        return count($this);
-    }
-
-    public function countValues()
+    public static function count(array $self) : int
     {
-        return array_count_values($this);
+        return count($self);
     }
 
-    public function diff($array)
+    public static function countValues(array $self) : int
     {
-        $this->verifyArray($array, "diff");
-        return array_diff($this, $array);
+        return array_count_values($self);
     }
 
-    public function difference($array)
+    public static function diff(array $self, array $compare) : array
     {
-        $this->verifyArray($array, "diff");
-        return array_diff($this, $array);
+        return array_diff($self, $compare);
     }
 
-    public function each($callback)
+    // TODO - Unnecessary
+    public static function difference(array $self, array $compare) : array
     {
-        $this->verifyCallable($callback);
-        array_walk_recursive($this, $callback);
-        return $this;
+        return array_diff($self, $compare);
     }
 
-    public function filter($callback)
+    public static function each(array $self, callable $callback) : array
     {
-        $this->verifyCallable($callback);
-        return array_filter($this, $callback);
+        array_walk_recursive($self, $callback);
+        return $self;
     }
 
-    public function has($value)
+    public static function filter(array $self, callable $callback) : array
     {
-        return in_array($value, $this, true);
+        return array_filter($self, $callback);
     }
 
-    public function hasKey($key)
+    public static function has(array $self, $value) : bool
     {
-        $this->verifyString($key, "hasKey");
-        return array_key_exists($key, $this);
+        return in_array($value, $self, true);
     }
 
-    public function indexOf($value)
+    public static function hasKey(array $self, string $key) : bool
     {
-        return array_search($value, $this);
+        return array_key_exists($key, $self);
     }
 
-    public function intersect($array)
+    /**
+     * @return int|bool - int if found, false if not found.
+     * @see array_search()
+     */
+    public static function indexOf(array $self, $value)
     {
-        $this->verifyArray($array, "intersect");
-        return array_intersect($this, $array);
+        return array_search($value, $self);
     }
 
-    public function intersperse($value)
+    public static function intersect(array $self, array $array) : array
     {
-        $array = $this;
+        return array_intersect($self, $array);
+    }
+
+    // TODO - figure out what's going on here.
+    public static function intersperse(array $self, $value) : array
+    {
+        $array = $self;
         $chunk = array_chunk($array, 1);
 
-        $intersperser = function(&$row) {$row[1]="lalal";};
-        foreach($chunk as &$row) {
+        $intersperser = function (&$row) {
+            $row[1] = "lalal";
+        };
+        foreach ($chunk as &$row) {
             $row[1] = $value;
         }
         $result = call_user_func_array('array_merge', $chunk);
@@ -122,29 +125,26 @@ class ArrayHandler extends ScalarObjectHandler
         return $result;
     }
 
-    public function join($on="")
+    public static function join(array $self, string $on = "") : string
     {
-        return implode($on, $this);
+        return implode($on, $self);
     }
 
-    public function keys()
+    public static function keys(array $self) : array
     {
-        return array_keys($this);
+        return array_keys($self);
     }
 
-    public function keySort()
+    public static function keySort(array $self) : array
     {
-        ksort($this);
-        return $this;
+        ksort($self);
+        return $self;
     }
 
-    public function map($callback, $arguments = null)
+    public static function map(array $self, callable $callback, $arguments = null) : array
     {
-        $array = $this;
-        if(null !== $callback) {
-            $this->verifyCallable($callback);
-        }
-        if(null === $arguments) {
+        $array = $self;
+        if ($arguments === null) {
             $result = array_map($callback, $array);
         } else {
             $args = func_get_args();
@@ -154,161 +154,123 @@ class ArrayHandler extends ScalarObjectHandler
         }
 
         return $result;
-
     }
 
-    public function max()
+    public static function max(array $self)
     {
-        return max($this);
+        return max($self);
     }
 
-    public function merge($array)
+    public static function merge(array $self, array $array) : array
     {
-        $this->verifyArray($array, "merge");
-        return array_merge($this, $array);
+        return array_merge($self, $array);
     }
 
-    public function min()
+    public static function min(array $self)
     {
-        return min($this);
+        return min($self);
     }
 
-    public function push($val)
+    public static function push(array $self, $val) : array
     {
-        array_push($this, $val);
-        return $this;
+        array_push($self, $val);
+        return $self;
     }
 
-    public function rand($number = 1)
+    public static function rand(array $self, int $number = 1)
     {
-        $r = array_rand($this, $number);
-        return $this[$r];
+        $r = array_rand($self, $number);
+        return $self[$r];
     }
 
-    public function reduce($callback, $initial = null)
+    public static function reduce(array $self, callable $callback, $initial = null)
     {
-        $this->verifyCallable($callback);
-        return array_reduce($this, $callback, $initial);
+        return array_reduce($self, $callback, $initial);
     }
 
-    public function reindex($by = null)
+    public static function reindex(array $self, callable $by = null) : array
     {
-        if(null === $by) return array_values($this);
-        if(is_callable($by)) {
-            $keys = array_map($by, $this);
-            return array_combine($keys, array_values($this));
+        if ($by === null) {
+            return array_values($self);
+        }
+        if (is_callable($by)) {
+            $keys = array_map($by, $self);
+            return array_combine($keys, array_values($self));
         }
     }
 
-    public function reverse()
+    public static function reverse(array $self) : array
     {
-        return array_reverse($this);
+        return array_reverse($self);
     }
 
-    public function reverseKeySort()
+    public static function reverseKeySort(array $self) : array
     {
-        krsort($this);
-        return $this;
+        krsort($self);
+        return $self;
     }
 
-    public function slice($offset, $length = null, $preserve = false)
+    public static function slice(array $self, int $offset, int $length = null, bool $preserve = false) : array
     {
-        $this->verifyInteger($offset, "slice");
-        return array_slice($this, $offset, $length, $preserve);
+        return array_slice($self, $offset, $length, $preserve);
     }
 
-    public function splice($offset, $length = null, $replacement = null)
+    public static function splice(array $self, int $offset, int $length = null, $replacement = null) : array
     {
-        $this->verifyInteger($offset, "splice");
-        $array = $this;
-        if(null === $length) {
-            $extracted = array_splice($array, $offset);
+        if (null === $length) {
+            $extracted = array_splice($self, $offset);
         } else {
-            $extracted = array_splice($array, $offset, $length, $replacement);
+            $extracted = array_splice($self, $offset, $length, $replacement);
         }
-
-        return $array;
+        return $self;
     }
 
-    public function sort($flags = null)
+    public static function sort(array $self, int $flags = null) : array
     {
-        $array = $this;
-        $result = sort($array, $flags);
+        $result = sort($self, $flags);
 
         if ($result === false) {
-            throw new \InvalidArgumentException("Array object could not be sorted");
+            throw new InvalidArgumentException("Array could not be sorted.");
         }
 
-        return $array;
+        return $self;
     }
 
-    public function sum()
+    /**
+     * @return int|float
+     */
+    public static function sum(array $self)
     {
-        return array_sum($this);
+        return array_sum($self);
     }
 
-    public function toArray()
+    public static function toArray(array $self) : array
     {
-        $array = $this;
-        return $array;
+        return $self;
     }
 
-    public function toFloat()
+    public static function toFloat(array $self) : float
     {
-        return float($this);
+        return (float)$self;
     }
 
-    public function toInt()
+    public static function toInt(array $self) : int
     {
-        return int($this);
+        return (int)$self;
     }
 
-    public function toJSON()
+    public static function toJson(array $self) : string
     {
-        return json_encode($this);
+        return json_encode($self);
     }
 
-
-    public function toString()
+    public static function toString(array $self) : string
     {
-        return string($this);
+        return (string)$self;
     }
 
-    public function values()
+    public static function values(array $self) : array
     {
-        return array_values($this);
+        return array_values($self);
     }
-
-
-
-
-    protected function verifyInteger($input = null, $methodName = "")
-    {
-        if (false === is_int($input)) {
-            throw new \InvalidArgumentException("Argument passed to $methodName has to be an integer");
-        }
-    }
-
-    protected function verifyString($input = null, $methodName = "")
-    {
-        if (false === is_string($input)) {
-            throw new \InvalidArgumentException("Argument passed to $methodName has to be a string");
-        }
-    }
-
-    protected function verifyArray($input = null, $methodName = "")
-    {
-        if (false === is_array($input)) {
-            throw new \InvalidArgumentException("Argument passed to $methodName has to be a array");
-        }
-    }
-
-    protected function verifyCallable($input = null, $methodName = "")
-    {
-        if (false === is_callable($input)) {
-            throw new \InvalidArgumentException("Argument passed to $methodName needs to be callable");
-        }
-    }
-
-
 }

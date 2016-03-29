@@ -1,225 +1,208 @@
 <?php
-namespace Spl\Scalars;
+namespace RedCrystal\Scalars;
 
 class StringHandler extends ScalarObjectHandler
 {
-
-    public function isString() {
+    public static function isString(string $self) : bool
+    {
         return true;
     }
 
-    public function caseCompare($compare)
+    public static function caseCompare(string $self, string $compare) : int
     {
-        return strcasecmp($this, $compare);
+        return strcasecmp($self, $compare);
     }
 
-    public function hash($algo = PASSWORD_DEFAULT, $options=[]) {
-        return password_hash($this, $algo, $options);
+    public static function hash(string $self, int $algorithm = PASSWORD_DEFAULT, array $options = []) : string
+    {
+        return password_hash($self, $algorithm, $options);
     }
 
-    public function length()
+    public static function length(string $self) : int
     {
-        return strlen($this);
+        return strlen($self);
     }
 
-    /*
-     * Slicing methods
-     */
-
-    public function slice($offset, $length = null)
+    public static function slice(string $self, int $offset, int $length = null) : string
     {
-        $offset = $this->prepareOffset($offset);
-        $length = $this->prepareLength($offset, $length);
+        $offset = self::prepareOffset($self, $offset);
+        $length = self::prepareLength($self, $offset, $length);
 
         if (0 === $length) {
             return '';
         }
 
-        return substr($this, $offset, $length);
+        return substr($self, $offset, $length);
     }
 
-    public function replaceSlice($replacement, $offset, $length = null)
+    public static function replaceSlice(string $self, string $replacement, int $offset, int $length = null) : string
     {
-        $offset = $this->prepareOffset($offset);
-        $length = $this->prepareLength($offset, $length);
+        $offset = self::prepareOffset($self, $offset);
+        $length = self::prepareLength($self, $offset, $length);
 
-        return substr_replace($this, $replacement, $offset, $length);
+        return substr_replace($self, $replacement, $offset, $length);
     }
 
-    /*
-     * Search methods
-     */
-
-    public function indexOf($string, $offset = 0)
+    public static function indexOf(string $self, int $search, int $offset = 0)
     {
-        $offset = $this->prepareOffset($offset);
+        $offset = self::prepareOffset($self, $offset);
 
-        if ('' === $string) {
+        if ($search === '') {
             return $offset;
         }
 
-        return strpos($this, $string, $offset);
+        return strpos($self, $search, $offset);
     }
 
-    public function lastIndexOf($string, $offset = null)
+    public static function lastIndexOf(string $self, int $search, int $offset = null)
     {
-        if (null === $offset) {
-            $offset = $this->length();
+        if ($offset === null) {
+            $offset = $self->length();
         } else {
-            $offset = $this->prepareOffset($offset);
+            $offset = self::prepareOffset($self, $offset);
         }
 
-        if ('' === $string) {
+        if ($search === '') {
             return $offset;
         }
 
         /* Converts $offset to a negative offset as strrpos has a different
          * behavior for positive offsets. */
-        return strrpos($this, $string, $offset - $this->length());
+        return strrpos($self, $search, $offset - $self->length());
     }
 
-    public function capitalize()
+    public static function capitalize(string $self) : string
     {
-        return ucwords($this);
+        return ucwords($self);
     }
 
-    public function contains($string)
+    public static function contains(string $self, string $search) : bool
     {
-        return false !== $this->indexOf($string);
+        return $self->indexOf($search) !== false;
     }
 
-    public function lower()
+    public static function lower(string $self) : string
     {
-        return strtolower($this);
+        return strtolower($self);
     }
 
-    public function startsWith($string)
+    public static function startsWith(string $self, string $search) : bool
     {
-        return 0 === $this->indexOf($string);
+        return $self->indexOf($search) === 0;
     }
 
-    public function endsWith($string)
+    public static function endsWith(string $self, string $search) : bool
     {
-        return $this->lastIndexOf($string) === $this->length() - $string->length();
+        return $self->lastIndexOf($search) === $self->length() - $search->length();
     }
 
-    public function count($string, $offset = 0, $length = null)
+    public static function count(string $self, string $search, int $offset = 0, int $length = null) : int
     {
-        $offset = $this->prepareOffset($offset);
-        $length = $this->prepareLength($offset, $length);
+        $offset = self::prepareOffset($self, $offset);
+        $length = self::prepareLength($self, $offset, $length);
 
-        if ('' === $string) {
+        if ($search === '') {
             return $length + 1;
         }
 
-        return substr_count($this, $string, $offset, $length);
+        return substr_count($self, $search, $offset, $length);
     }
 
-    /* This function has two prototypes:
-     *
-     * replace(array(string $from => string $to) $replacements, int $limit = PHP_MAX_INT)
-     * replace(string $from, string $to, int $limit = PHP_MAX_INT)
-     */
-    public function replace($from, $to = null, $limit = null)
+    public static function replace(string $self, string $from, string $to, int $limit = null) : string
     {
         if (is_array($from)) {
-            return $this->replacePairs($from, $to);
+            return self::replacePairs($self, $from, $to);
         }
 
-        if (null === $limit) {
-            return str_replace($from, $to, $this);
+        if ($limit === null) {
+            return str_replace($from, $to, $self);
         }
 
-        $this->verifyPositive($limit, 'Limit');
-        return $this->replaceWithLimit($this, $from, $to, $limit);
+        self::verifyPositive($limit, 'Limit');
+        return self::replaceWithLimit($self, $from, $to, $limit);
     }
 
-    public function split($separator, $limit = PHP_INT_MAX)
+    public static function split(string $self, string $separator, int $limit = PHP_INT_MAX) : array
     {
-        return explode($separator, $this, $limit);
+        return explode($separator, $self, $limit);
     }
 
-    public function chunk($chunkLength = 1)
+    public static function chunk(string $self, int $chunkLength = 1) : array
     {
-        $this->verifyPositive($chunkLength, 'Chunk length');
-        return str_split($this, $chunkLength);
+        self::verifyPositive($chunkLength, 'Chunk length');
+        return str_split($self, $chunkLength);
     }
 
-    public function repeat($times)
+    public static function repeat(string $self, int $times) : string
     {
-        $this->verifyNotNegative($times, 'Number of repetitions');
-        return str_repeat($this, $times);
+        self::verifyNotNegative($times, 'Number of repetitions');
+        return str_repeat($self, $times);
     }
 
-    public function reverse()
+    public static function reverse(string $self) : string
     {
-        return strrev($this);
+        return strrev($self);
     }
 
-
-    public function trim($characters = " \t\n\r\v\0")
+    public static function trim(string $self, string $characters = " \t\n\r\v\0") : string
     {
-        return trim($this, $characters);
+        return trim($self, $characters);
     }
 
-    public function trimLeft($characters = " \t\n\r\v\0")
+    public static function trimLeft(string $self, string $characters = " \t\n\r\v\0") : string
     {
-        return ltrim($this, $characters);
+        return ltrim($self, $characters);
     }
 
-    public function trimRight($characters = " \t\n\r\v\0")
+    public static function trimRight(string $self, string $characters = " \t\n\r\v\0") : string
     {
-        return rtrim($this, $characters);
+        return rtrim($self, $characters);
     }
 
-    public function padLeft($length, $padString = " ")
+    public static function padLeft(string $self, int $length, string $padString = " ") : string
     {
-        return str_pad($this, $length, $padString, STR_PAD_LEFT);
+        return str_pad($self, $length, $padString, STR_PAD_LEFT);
     }
 
-    public function padRight($length, $padString = " ")
+    public static function padRight(string $self, int $length, string $padString = " ") : string
     {
-        return str_pad($this, $length, $padString, STR_PAD_RIGHT);
+        return str_pad($self, $length, $padString, STR_PAD_RIGHT);
     }
 
-
-    public function toArray()
+    public static function toArray(string $self) : array
     {
-      return [$this];
+        return [$self];
     }
 
-    public function toFloat()
+    public static function toFloat(string $self) : float
     {
-      return float($this);
+        return (float)$self;
     }
 
-    public function toInt()
+    public static function toInt(string $self) : int
     {
-      return int($this);
+        return (int)$self;
     }
 
-    public function toJSON()
+    public static function toJson(string $self) : string
     {
-      return json_encode($this);
+        return json_encode($self);
     }
 
-
-    public function toString()
+    public static function toString(string $self) : string
     {
-        return $this;
+        return $self;
     }
 
-    public function upper()
+    public static function upper(string $self) : string
     {
-        return strtoupper($this);
+        return strtoupper($self);
     }
 
-
-    // Internal methods, not part of public API
-
-    protected function prepareOffset($offset)
+    /** @internal */
+    protected static function prepareOffset(string $string, $offset) : int
     {
-        $len = $this->length();
+        $len = $string->length();
         if ($offset < -$len || $offset > $len) {
             throw new \InvalidArgumentException('Offset must be in range [-len, len]');
         }
@@ -231,20 +214,21 @@ class StringHandler extends ScalarObjectHandler
         return $offset;
     }
 
-    protected function prepareLength($offset, $length)
+    /** @internal */
+    protected static function prepareLength(string $string, $offset, $length) : int
     {
-        if (null === $length) {
-            return $this->length() - $offset;
+        if ($length === null) {
+            return $string->length() - $offset;
         }
 
         if ($length < 0) {
-            $length += $this->length() - $offset;
+            $length += $string->length() - $offset;
 
             if ($length < 0) {
                 throw new \InvalidArgumentException('Length too small');
             }
         } else {
-            if ($offset + $length > $this->length()) {
+            if ($offset + $length > $string->length()) {
                 throw new \InvalidArgumentException('Length too large');
             }
         }
@@ -252,30 +236,33 @@ class StringHandler extends ScalarObjectHandler
         return $length;
     }
 
-    protected function verifyPositive($value, $name)
+    /** @internal */
+    protected static function verifyPositive($value, $name)
     {
         if ($value <= 0) {
             throw new \InvalidArgumentException("$name has to be positive");
         }
     }
 
-    protected function verifyNotNegative($value, $name)
+    /** @internal */
+    protected static function verifyNotNegative($value, $name)
     {
         if ($value < 0) {
             throw new \InvalidArgumentException("$name can not be negative");
         }
     }
 
-    protected function replacePairs($replacements, $limit)
+    /** @internal */
+    protected static function replacePairs(string $string, $replacements, $limit)
     {
-        if (null === $limit) {
-            return strtr($this, $replacements);
+        if ($limit === null) {
+            return strtr($string, $replacements);
         }
 
-        $this->verifyPositive($limit, 'Limit');
-        $str = $this;
+        self::verifyPositive($limit, 'Limit');
+        $str = $string;
         foreach ($replacements as $from => $to) {
-            $str = $this->replaceWithLimit($str, $from, $to, $limit);
+            $str = self::replaceWithLimit($str, $from, $to, $limit);
             if (0 === $limit) {
                 break;
             }
@@ -283,13 +270,14 @@ class StringHandler extends ScalarObjectHandler
         return $str;
     }
 
-    protected function replaceWithLimit($str, $from, $to, &$limit)
+    /** @internal */
+    protected static function replaceWithLimit(string $string, string $from, string $to, &$limit)
     {
         $lenDiff = $to->length() - $from->length();
         $index = 0;
 
-        while (false !== $index = $str->indexOf($from, $index)) {
-            $str = $str->replaceSlice($to, $index, $to->length());
+        while (false !== $index = $string->indexOf($from, $index)) {
+            $string = $string->replaceSlice($to, $index, $to->length());
             $index += $lenDiff;
 
             if (0 === --$limit) {
@@ -297,6 +285,6 @@ class StringHandler extends ScalarObjectHandler
             }
         }
 
-        return $str;
+        return $string;
     }
 }

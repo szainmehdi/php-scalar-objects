@@ -1,21 +1,15 @@
 <?php
-namespace Spl\Scalars;
+namespace RedCrystal\Scalars;
 
 class NullHandler extends ScalarObjectHandler
 {
-
-    public function isNull() {
+    public static function isNull($self) : bool
+    {
         return true;
     }
 
-    public function toArray()
-    {
-        return [];
-    }
-
-    public function toJSON()
+    public static function toJson($self) : string
     {
         return 'null';
     }
-
 }

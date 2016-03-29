@@ -1,17 +1,11 @@
 <?php
 
-namespace Spl\Scalars;
+namespace RedCrystal\Scalars;
 
 class BooleanHandler extends ScalarObjectHandler
 {
-
-    public function isBool()
+    public static function isBool($self) : bool
     {
         return true;
-    }
-
-    public function toJSON()
-    {
-        return json_encode($this);
     }
 }
